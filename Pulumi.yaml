@@ -1,0 +1,3 @@
+name: integra-infrastructure
+runtime: nodejs
+description: Centralized infrastructure for the Integra ecosystem

@@ -1,0 +1,7 @@
+config:
+  kubernetes:enableDryRun: "false"
+  integra-infrastructure:environment: production
+  integra-infrastructure:digitalOceanToken:
+    secure: AAABACq4qHgW9DfK/yk5O3Cu2yUOj4zqCOu7AU/QBTDl1nKGsfXXrfWj3h4FKfbiM/pHquuiVwk1Lgt+kK79UztzxFvzB1hcTGlsJoYObJqnt0IMsmoxed/ACoDr7nGfyOEISNtFJA== # Will be set via pulumi config set --secret
+  integra-infrastructure:infisicalProjectId: acd53ca1-6365-4874-874f-15d62453c34f
+  integra-infrastructure:containerRegistry: registry.digitalocean.com/integra-container-registry

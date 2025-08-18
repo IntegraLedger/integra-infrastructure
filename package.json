@@ -1,0 +1,21 @@
+{
+  "name": "@integraledger/infrastructure",
+  "version": "1.0.0",
+  "description": "Centralized infrastructure management for Integra ecosystem",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "pulumi up --yes",
+    "preview": "pulumi preview",
+    "destroy": "pulumi destroy --yes",
+    "refresh": "pulumi refresh --yes"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.94.0",
+    "@pulumi/kubernetes": "^4.5.0",
+    "@pulumi/digitalocean": "^4.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
