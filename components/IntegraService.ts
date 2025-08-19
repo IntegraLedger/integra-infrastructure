@@ -62,7 +62,7 @@ export class IntegraService extends pulumi.ComponentResource {
               },
               secretsScope: {
                 projectSlug: "integra-ecosystem-1",
-                envSlug: args.environment,
+                envSlug: "dev", // TODO: Update when production environment is created in Infisical
                 secretsPath: args.infisicalPath,
                 recursive: true,
               }
