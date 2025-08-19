@@ -61,7 +61,7 @@ export class IntegraService extends pulumi.ComponentResource {
                 secretNamespace: args.namespace,
               },
               secretsScope: {
-                projectId: "acd53ca1-6365-4874-874f-15d62453c34f",
+                projectSlug: "integra",
                 envSlug: args.environment,
                 secretsPath: args.infisicalPath,
               },
