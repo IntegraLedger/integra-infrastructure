@@ -10,6 +10,10 @@ const environment = config.require("environment");
 const containerRegistry = config.require("containerRegistry");
 const imageOverrides = config.getObject<Record<string, string>>("imageOverrides") || {};
 
+// Get required secrets from config
+const dockerRegistryAuth = config.requireSecret("dockerRegistryAuth");
+const infisicalServiceToken = config.requireSecret("infisicalServiceToken");
+
 // Create namespaces
 const namespacesMap = new Map<string, k8s.core.v1.Namespace>();
 for (const [key, name] of Object.entries(namespaces)) {
@@ -23,6 +27,38 @@ for (const [key, name] of Object.entries(namespaces)) {
     }
   });
   namespacesMap.set(name, namespace);
+}
+
+// Create Docker registry secret in each namespace
+const registrySecrets = new Map<string, k8s.core.v1.Secret>();
+for (const [name, namespace] of namespacesMap) {
+  const registrySecret = new k8s.core.v1.Secret(`${name}-registry-secret`, {
+    metadata: {
+      name: "integra-registry",
+      namespace: name,
+    },
+    type: "kubernetes.io/dockerconfigjson",
+    stringData: {
+      ".dockerconfigjson": dockerRegistryAuth,
+    },
+  }, { parent: namespace, dependsOn: [namespace] });
+  registrySecrets.set(name, registrySecret);
+}
+
+// Create Infisical service token secret in each namespace
+const infisicalSecrets = new Map<string, k8s.core.v1.Secret>();
+for (const [name, namespace] of namespacesMap) {
+  const infisicalSecret = new k8s.core.v1.Secret(`${name}-infisical-token`, {
+    metadata: {
+      name: "infisical-service-token",
+      namespace: name,
+    },
+    type: "Opaque",
+    stringData: {
+      serviceToken: infisicalServiceToken,
+    },
+  }, { parent: namespace, dependsOn: [namespace] });
+  infisicalSecrets.set(name, infisicalSecret);
 }
 
 // Setup Infisical Operator
@@ -40,6 +76,9 @@ for (const serviceConfig of serviceRegistry) {
     throw new Error(`Namespace ${serviceConfig.namespace} not found`);
   }
 
+  const registrySecret = registrySecrets.get(serviceConfig.namespace);
+  const infisicalTokenSecret = infisicalSecrets.get(serviceConfig.namespace);
+
   const service = new IntegraService(serviceConfig.name, {
     name: serviceConfig.name,
     namespace: serviceConfig.namespace,
@@ -54,7 +93,7 @@ for (const serviceConfig of serviceRegistry) {
     exposedPaths: serviceConfig.exposedPaths,
     env: serviceConfig.env,
   }, { 
-    dependsOn: [namespace, infisicalOperator],
+    dependsOn: [namespace, infisicalOperator, registrySecret!, infisicalTokenSecret!],
     parent: namespace 
   });
 
