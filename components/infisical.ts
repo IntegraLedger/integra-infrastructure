@@ -5,10 +5,10 @@ export function setupInfisicalOperator() {
   // For now, always install the operator
   // TODO: Add proper check for existing operator
 
-  // Install Infisical operator
+  // Install Infisical operator - USING LATEST STABLE VERSION
   const infisicalOperator = new k8s.helm.v3.Chart("infisical-operator", {
     chart: "secrets-operator",
-    version: "0.2.0",
+    version: "0.10.2",  // Updated from ancient 0.2.0 to current version
     fetchOpts: {
       repo: "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts",
     },
