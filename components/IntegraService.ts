@@ -59,13 +59,13 @@ export class IntegraService extends pulumi.ComponentResource {
               serviceTokenSecretReference: {
                 secretName: "infisical-service-token-v2",
                 secretNamespace: args.namespace,
-              },
-              secretsScope: {
-                projectSlug: "integra",
-                envSlug: args.environment,
-                secretsPath: args.infisicalPath,
-              },
+              }
             }
+          },
+          secretsScope: {
+            projectSlug: "integra",
+            envSlug: args.environment,
+            secretsPath: args.infisicalPath,
           },
           managedSecretReference: {
             secretName: `${args.name}-env`,
