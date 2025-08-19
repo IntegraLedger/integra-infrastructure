@@ -8,6 +8,7 @@ import { setupInfisicalOperator } from "./components/infisical";
 const config = new pulumi.Config();
 const environment = config.require("environment");
 const containerRegistry = config.require("containerRegistry");
+const imageOverrides = config.getObject<Record<string, string>>("imageOverrides") || {};
 
 // Create namespaces
 const namespacesMap = new Map<string, k8s.core.v1.Namespace>();
@@ -42,7 +43,7 @@ for (const serviceConfig of serviceRegistry) {
   const service = new IntegraService(serviceConfig.name, {
     name: serviceConfig.name,
     namespace: serviceConfig.namespace,
-    image: `${containerRegistry}/${serviceConfig.image}`,
+    image: `${containerRegistry}/${serviceConfig.image}:${imageOverrides[serviceConfig.name] || "latest"}`,
     replicas: serviceConfig.replicas,
     port: serviceConfig.port,
     healthCheck: serviceConfig.healthCheck,

@@ -55,21 +55,22 @@ export class IntegraService extends pulumi.ComponentResource {
           hostAPI: "https://app.infisical.com/api",
           resyncInterval: 60,
           authentication: {
-            universalAuth: {
-              credentialsRef: {
-                secretName: "infisical-universal-auth",
-                secretNamespace: "integra-infrastructure",
-              },
-              secretsScope: {
-                projectSlug: "integra",
-                envSlug: args.environment,
-                secretsPath: args.infisicalPath,
-              },
-            },
+            serviceToken: {
+              serviceTokenSecretReference: {
+                secretName: "infisical-service-token-v2",
+                secretNamespace: args.namespace,
+              }
+            }
           },
           managedSecretReference: {
             secretName: `${args.name}-env`,
             secretNamespace: args.namespace,
+            creationPolicy: "Orphan",
+          },
+          secretsScope: {
+            projectId: "acd53ca1-6365-4874-874f-15d62453c34f",
+            envSlug: args.environment,
+            secretsPath: args.infisicalPath,
           },
         },
       },
@@ -101,6 +102,7 @@ export class IntegraService extends pulumi.ComponentResource {
                     {
                       secretRef: {
                         name: `${args.name}-env`,
+                        optional: true,
                       },
                     },
                   ],
