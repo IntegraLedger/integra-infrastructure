@@ -257,7 +257,7 @@ export const serviceRegistry: ServiceConfig[] = [
     namespace: namespaces.workflow,
     replicas: 2,
     image: "integra-temporal-orchestrator-service",
-    port: 8000,
+    port: 3000,
     healthCheck: "/health",
     infisicalPath: "/apps/integra-temporal-orchestrator-service",
     resources: sizes.large
@@ -267,7 +267,7 @@ export const serviceRegistry: ServiceConfig[] = [
     namespace: namespaces.workflow,
     replicas: 2,
     image: "integra-temporal-messaging-service",
-    port: 8000,
+    port: 3000,
     healthCheck: "/health",
     infisicalPath: "/apps/integra-temporal-messaging-service",
     resources: sizes.medium
