@@ -2,15 +2,8 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
 export function setupInfisicalOperator() {
-  // Check if operator already exists
-  const existingOperator = k8s.apps.v1.Deployment.get(
-    "infisical-operator",
-    "integra-infrastructure/infisical-secrets-operator"
-  ).catch(() => null);
-
-  if (existingOperator) {
-    return existingOperator;
-  }
+  // For now, always install the operator
+  // TODO: Add proper check for existing operator
 
   // Install Infisical operator
   const infisicalOperator = new k8s.helm.v3.Chart("infisical-operator", {
