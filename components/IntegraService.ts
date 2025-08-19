@@ -59,18 +59,18 @@ export class IntegraService extends pulumi.ComponentResource {
               serviceTokenSecretReference: {
                 secretName: "infisical-service-token-v2",
                 secretNamespace: args.namespace,
-              }
+              },
+              secretsScope: {
+                projectId: "acd53ca1-6365-4874-874f-15d62453c34f",
+                envSlug: args.environment,
+                secretsPath: args.infisicalPath,
+              },
             }
           },
           managedSecretReference: {
             secretName: `${args.name}-env`,
             secretNamespace: args.namespace,
             creationPolicy: "Orphan",
-          },
-          secretsScope: {
-            projectId: "acd53ca1-6365-4874-874f-15d62453c34f",
-            envSlug: args.environment,
-            secretsPath: args.infisicalPath,
           },
         },
       },
