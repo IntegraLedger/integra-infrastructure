@@ -9,6 +9,13 @@ on:
         description: 'Service to deploy (leave empty for all)'
         required: false
         type: string
+      imageTag:
+        description: 'Image tag to deploy'
+        required: false
+        type: string
+        default: 'latest'
+  repository_dispatch:
+    types: [deploy-service]
 
 env:
   PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -30,6 +37,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+        
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -38,7 +50,7 @@ jobs:
       - name: Configure kubectl
         run: |
           doctl auth init -t ${{ secrets.DIGITALOCEAN_TOKEN }}
-          doctl kubernetes cluster kubeconfig save integra-k8s-cluster
+          doctl kubernetes cluster kubeconfig save integra-dev
           
       - name: Login to Pulumi
         run: pulumi login
@@ -50,17 +62,58 @@ jobs:
         run: |
           pulumi config set --secret digitalOceanToken ${{ secrets.DIGITALOCEAN_TOKEN }}
           
+      - name: Handle repository dispatch
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          SERVICE="${{ github.event.client_payload.service }}"
+          IMAGE_TAG="${{ github.event.client_payload.imageTag }}"
+          
+          if [ ! -z "$SERVICE" ] && [ ! -z "$IMAGE_TAG" ]; then
+            echo "Setting image override for $SERVICE to $IMAGE_TAG"
+            pulumi config set --path "imageOverrides.${SERVICE}" "${IMAGE_TAG}"
+          fi
+          
+      - name: Handle workflow dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          SERVICE="${{ inputs.service }}"
+          IMAGE_TAG="${{ inputs.imageTag }}"
+          
+          if [ ! -z "$SERVICE" ] && [ ! -z "$IMAGE_TAG" ]; then
+            echo "Setting image override for $SERVICE to $IMAGE_TAG"
+            pulumi config set --path "imageOverrides.${SERVICE}" "${IMAGE_TAG}"
+          fi
+          
       - name: Preview changes
         run: pulumi preview
         
       - name: Deploy infrastructure
-        run: pulumi up --yes
-        
+        run: |
+          SERVICE="${{ github.event.client_payload.service }}${{ inputs.service }}"
+          if [ ! -z "$SERVICE" ]; then
+            echo "Deploying specific service: $SERVICE"
+            pulumi up --yes --target "**${SERVICE}**"
+          else
+            echo "Deploying all services"
+            pulumi up --yes
+          fi
+          
       - name: Export stack outputs
         run: pulumi stack output --json > outputs.json
         
       - name: Upload outputs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: stack-outputs
           path: outputs.json
+          
+      - name: Verify deployment
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          SERVICE="${{ github.event.client_payload.service }}"
+          if [ ! -z "$SERVICE" ]; then
+            echo "Verifying $SERVICE deployment"
+            kubectl get deployment $SERVICE -n integra-apps -o wide || \
+            kubectl get deployment $SERVICE -n integra-blockchain -o wide || \
+            kubectl get deployment $SERVICE -n integra-workflow -o wide
+          fi
