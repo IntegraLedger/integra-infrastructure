@@ -77,6 +77,17 @@ export class IntegraService extends pulumi.ComponentResource {
       { parent: this }
     );
 
+    // Extract version from image tag if present
+    const imageTag = args.image.split(':')[1] || 'latest';
+    const commitSha = imageTag.includes('-') ? imageTag.split('-')[1] : 'unknown';
+    
+    // Enhanced labels with version tracking
+    const enhancedLabels = {
+      ...labels,
+      "app.kubernetes.io/version": imageTag,
+      "app.kubernetes.io/component": "service",
+    };
+
     // Create Deployment
     this.deployment = new k8s.apps.v1.Deployment(
       `${name}-deployment`,
@@ -84,13 +95,30 @@ export class IntegraService extends pulumi.ComponentResource {
         metadata: {
           name: args.name,
           namespace: args.namespace,
-          labels,
+          labels: enhancedLabels,
+          annotations: {
+            "deployment.kubernetes.io/revision": imageTag,
+            "pulumi.com/autoUpdate": "true",
+            "integra.io/deployed-at": new Date().toISOString(),
+            "integra.io/deployed-by": "pulumi-automation",
+            "integra.io/commit-sha": commitSha,
+            "integra.io/service-name": args.name,
+          },
         },
         spec: {
           replicas: args.replicas,
           selector: { matchLabels: labels },
           template: {
-            metadata: { labels },
+            metadata: { 
+              labels: enhancedLabels,
+              annotations: {
+                "prometheus.io/scrape": "true",
+                "prometheus.io/port": args.port.toString(),
+                "prometheus.io/path": "/metrics",
+                "integra.io/version": imageTag,
+                "integra.io/commit": commitSha,
+              },
+            },
             spec: {
               containers: [
                 {
@@ -153,7 +181,10 @@ export class IntegraService extends pulumi.ComponentResource {
         metadata: {
           name: args.name,
           namespace: args.namespace,
-          labels,
+          labels: enhancedLabels,
+          annotations: {
+            "integra.io/service-version": imageTag,
+          },
         },
         spec: {
           type: "ClusterIP",
