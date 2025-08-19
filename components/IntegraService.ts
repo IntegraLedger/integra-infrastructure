@@ -63,6 +63,7 @@ export class IntegraService extends pulumi.ComponentResource {
               secretsScope: {
                 envSlug: args.environment,
                 secretsPath: args.infisicalPath,
+                recursive: true,  // Required to fetch secrets at the path
               }
             }
           },
