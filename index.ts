@@ -52,6 +52,7 @@ for (const serviceConfig of serviceRegistry) {
     environment,
     domain: serviceConfig.domain,
     exposedPaths: serviceConfig.exposedPaths,
+    env: serviceConfig.env,
   }, { 
     dependsOn: [namespace, infisicalOperator],
     parent: namespace 

@@ -41,6 +41,7 @@ export class IntegraService extends pulumi.ComponentResource {
     };
 
     // Create InfisicalSecret for automatic secret injection
+    // Using standard service token authentication as per Infisical documentation
     this.infisicalSecret = new k8s.apiextensions.CustomResource(
       `${name}-infisical`,
       {
@@ -55,23 +56,20 @@ export class IntegraService extends pulumi.ComponentResource {
           hostAPI: "https://app.infisical.com/api",
           resyncInterval: 60,
           authentication: {
-            universalAuth: {
-              credentialsRef: {
-                secretName: "infisical-universal-auth",
+            serviceToken: {
+              serviceTokenSecretReference: {
+                secretName: "infisical-service-token",
                 secretNamespace: args.namespace,
               },
               secretsScope: {
-                projectSlug: "integra-ecosystem-1",
-                envSlug: "dev", // TODO: Update when production environment is created in Infisical
+                envSlug: args.environment,
                 secretsPath: args.infisicalPath,
-                recursive: true,
               }
             }
           },
           managedSecretReference: {
             secretName: `${args.name}-env`,
             secretNamespace: args.namespace,
-            creationPolicy: "Orphan",
           },
         },
       },
@@ -98,6 +96,7 @@ export class IntegraService extends pulumi.ComponentResource {
           namespace: args.namespace,
           labels: enhancedLabels,
           annotations: {
+            "linkerd.io/inject": "enabled",
             "deployment.kubernetes.io/revision": imageTag,
             "pulumi.com/autoUpdate": "true",
             "integra.io/deployed-at": new Date().toISOString(),
@@ -113,6 +112,7 @@ export class IntegraService extends pulumi.ComponentResource {
             metadata: { 
               labels: enhancedLabels,
               annotations: {
+                "linkerd.io/inject": "enabled",
                 "prometheus.io/scrape": "true",
                 "prometheus.io/port": args.port.toString(),
                 "prometheus.io/path": "/metrics",

@@ -206,7 +206,10 @@ export const serviceRegistry: ServiceConfig[] = [
     port: 3000,
     healthCheck: "/health",
     infisicalPath: "/apps/integra-polygon-executor",
-    resources: sizes.medium
+    resources: sizes.medium,
+    env: {
+      "RPC_SERVICE_URL": "http://integra-rpc-service:3000"
+    }
   },
   {
     name: "integra-arbitrum-executor",
@@ -216,7 +219,10 @@ export const serviceRegistry: ServiceConfig[] = [
     port: 3000,
     healthCheck: "/health",
     infisicalPath: "/apps/integra-arbitrum-executor",
-    resources: sizes.small
+    resources: sizes.small,
+    env: {
+      "RPC_SERVICE_URL": "http://integra-rpc-service:3000"
+    }
   },
   {
     name: "integra-avalanche-executor",
@@ -226,7 +232,10 @@ export const serviceRegistry: ServiceConfig[] = [
     port: 3000,
     healthCheck: "/health",
     infisicalPath: "/apps/integra-avalanche-executor",
-    resources: sizes.small
+    resources: sizes.small,
+    env: {
+      "RPC_SERVICE_URL": "http://integra-rpc-service:3000"
+    }
   },
   {
     name: "integra-base-executor",
@@ -236,7 +245,10 @@ export const serviceRegistry: ServiceConfig[] = [
     port: 3000,
     healthCheck: "/health",
     infisicalPath: "/apps/integra-base-executor",
-    resources: sizes.small
+    resources: sizes.small,
+    env: {
+      "RPC_SERVICE_URL": "http://integra-rpc-service:3000"
+    }
   },
 
   // Workflow Services
