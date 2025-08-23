@@ -26,16 +26,20 @@ export class VersionManager {
   
   constructor(config: pulumi.Config) {
     this.config = config;
-    this.manifestPath = path.join(__dirname, "..", "versions.yaml");
+    // versions.yaml is in the root of the project
+    this.manifestPath = path.join(process.cwd(), "versions.yaml");
     this.manifest = this.loadManifest();
   }
   
   private loadManifest(): VersionManifest {
     try {
+      pulumi.log.info(`Loading versions.yaml from: ${this.manifestPath}`);
       const content = fs.readFileSync(this.manifestPath, "utf8");
-      return yaml.load(content) as VersionManifest;
+      const manifest = yaml.load(content) as VersionManifest;
+      pulumi.log.info(`Loaded ${Object.keys(manifest.services || {}).length} service versions`);
+      return manifest;
     } catch (error) {
-      pulumi.log.warn(`Failed to load versions.yaml: ${error}`);
+      pulumi.log.warn(`Failed to load versions.yaml from ${this.manifestPath}: ${error}`);
       return this.getDefaultManifest();
     }
   }
@@ -68,14 +72,19 @@ export class VersionManager {
     
     // Check versions.yaml
     const serviceVersion = this.manifest.services[serviceName];
-    if (serviceVersion && serviceVersion.version) {
+    if (serviceVersion && serviceVersion.version && serviceVersion.version !== "latest") {
+      pulumi.log.info(`Using version from versions.yaml for ${serviceName}: ${serviceVersion.version}`);
       return serviceVersion.version;
     }
+    
+    // Log what we found for debugging
+    pulumi.log.error(`Service ${serviceName} in manifest: ${JSON.stringify(serviceVersion)}`);
     
     // NO FALLBACK - FAIL FAST
     throw new Error(
       `No valid version found for service '${serviceName}'. ` +
       `Version must be specified in versions.yaml or via runtime override. ` +
+      `Found: ${JSON.stringify(serviceVersion)}. ` +
       `'latest' tag is not allowed.`
     );
   }
