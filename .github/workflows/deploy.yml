@@ -51,7 +51,7 @@ jobs:
           
       - name: Setup Kubernetes
         run: |
-          doctl kubernetes cluster kubeconfig save integra-cluster
+          doctl kubernetes cluster kubeconfig save integra-dev
           
       - name: Setup Pulumi
         uses: pulumi/actions@v4
