@@ -97,12 +97,13 @@ export class IntegraService extends pulumi.ComponentResource {
           labels: enhancedLabels,
           annotations: {
             "linkerd.io/inject": "enabled",
-            "deployment.kubernetes.io/revision": imageTag,
+            // Removed deployment.kubernetes.io/revision - this is managed by Kubernetes controller
             "pulumi.com/autoUpdate": "true",
             "integra.io/deployed-at": new Date().toISOString(),
             "integra.io/deployed-by": "pulumi-automation",
             "integra.io/commit-sha": commitSha,
             "integra.io/service-name": args.name,
+            "integra.io/image-tag": imageTag, // Track version differently
           },
         },
         spec: {
