@@ -4,11 +4,14 @@ import { namespaces, serviceRegistry } from "./service-registry";
 import { IntegraService } from "./components/IntegraService";
 import { setupAPISIX } from "./components/apisix";
 import { setupInfisicalOperator } from "./components/infisical";
+import { VersionManager } from "./components/VersionManager";
 
 const config = new pulumi.Config();
 const environment = config.require("environment");
 const containerRegistry = config.require("containerRegistry");
-const imageOverrides = config.getObject<Record<string, string>>("imageOverrides") || {};
+
+// Initialize version manager for proper version control
+const versionManager = new VersionManager(config);
 
 // Get required secrets from config
 const dockerRegistryAuth = config.requireSecret("dockerRegistryAuth");
@@ -82,7 +85,7 @@ for (const serviceConfig of serviceRegistry) {
   const service = new IntegraService(serviceConfig.name, {
     name: serviceConfig.name,
     namespace: serviceConfig.namespace,
-    image: `${containerRegistry}/${serviceConfig.image}:${imageOverrides[serviceConfig.name] || "latest"}`,
+    image: versionManager.getImageUrl(serviceConfig.image, containerRegistry),
     replicas: serviceConfig.replicas,
     port: serviceConfig.port,
     healthCheck: serviceConfig.healthCheck,
@@ -100,10 +103,14 @@ for (const serviceConfig of serviceRegistry) {
   deployedServices.set(serviceConfig.name, service);
 }
 
+// Validate that all services have proper versions
+versionManager.validateVersions(serviceRegistry.map(s => s.name));
+
 // Export useful information
 export const clusterEndpoint = apisix.loadBalancerIP;
 export const deployedServiceNames = Array.from(deployedServices.keys());
 export const namespacesList = Array.from(namespacesMap.keys());
+export const serviceVersions = versionManager.exportVersions();
 
 // Health check status
 export const serviceStatuses = pulumi.all(

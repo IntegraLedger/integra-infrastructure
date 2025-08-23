@@ -10,9 +10,11 @@
     "refresh": "pulumi refresh --yes"
   },
   "dependencies": {
-    "@pulumi/pulumi": "^3.94.0",
+    "@pulumi/digitalocean": "^4.25.0",
     "@pulumi/kubernetes": "^4.5.0",
-    "@pulumi/digitalocean": "^4.25.0"
+    "@pulumi/pulumi": "^3.94.0",
+    "@types/js-yaml": "^4.0.9",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -1,0 +1,139 @@
+# Service Version Manifest
+# This file is the single source of truth for deployed service versions
+# Updated automatically by CI/CD pipeline - DO NOT EDIT MANUALLY
+
+metadata:
+  updated: 2025-08-23T15:52:00Z
+  updatedBy: pulumi-automation
+  environment: dev
+
+services:
+  # Frontend Applications
+  integra-trust-app:
+    version: latest  # TODO: Replace with actual version
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-admin-app:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-developer-app:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-explorer-app:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-docs-app:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+
+  # Backend Services
+  integra-bridge-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-admin-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-developer-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-ai-help-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-ai-gateway-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-dev-assistant-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+
+  # Blockchain Services
+  integra-blockchain-api:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-gateway-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-rpc-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-indexer-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-proof-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-hogan-api:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+
+  # Blockchain Executors
+  integra-polygon-executor:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-arbitrum-executor:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-avalanche-executor:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-base-executor:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+
+  # Workflow Services
+  integra-temporal-orchestrator-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-temporal-messaging-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-messaging-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z
+    
+  integra-workflow-service:
+    version: latest
+    commit: unknown
+    deployed: 2025-08-23T15:52:00Z

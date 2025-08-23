@@ -3,17 +3,20 @@ name: Deploy Infrastructure
 on:
   push:
     branches: [main]
+    paths:
+      - '**/*.ts'
+      - '**/*.yaml'
+      - '**/*.yml'
+      - '**/*.json'
+      - 'package*.json'
   workflow_dispatch:
     inputs:
       service:
-        description: 'Service to deploy (leave empty for all)'
+        description: 'Service to deploy (optional, deploys all if empty)'
         required: false
-        type: string
-      imageTag:
-        description: 'Image tag to deploy'
+      version:
+        description: 'Version to deploy (optional, uses versions.yaml if empty)'
         required: false
-        type: string
-        default: 'latest'
   repository_dispatch:
     types: [deploy-service, service-updated]
 
@@ -28,101 +31,172 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           
       - name: Install dependencies
-        run: npm ci
-        
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
-        
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-          
-      - name: Configure kubectl
         run: |
-          doctl auth init -t ${{ secrets.DIGITALOCEAN_TOKEN }}
-          doctl kubernetes cluster kubeconfig save integra-dev
+          npm ci
+          npm install -g js-yaml
           
+      - name: Setup Pulumi
+        uses: pulumi/actions@v4
+        
       - name: Login to Pulumi
         run: pulumi login
         
-      - name: Select production stack
-        run: pulumi stack select production
+      - name: Select stack
+        run: pulumi stack select dev
         
-      - name: Configure Pulumi
-        run: |
-          pulumi config set --secret digitalOceanToken ${{ secrets.DIGITALOCEAN_TOKEN }}
-          
-      - name: Handle repository dispatch
+      # Handle service updates from CI/CD
+      - name: Update service version (repository_dispatch)
         if: github.event_name == 'repository_dispatch'
         run: |
           SERVICE="${{ github.event.client_payload.service }}"
-          # Handle both 'imageTag' and 'image' in the payload
           IMAGE_TAG="${{ github.event.client_payload.imageTag }}"
-          if [ -z "$IMAGE_TAG" ]; then
-            IMAGE_TAG="${{ github.event.client_payload.image }}"
-          fi
-          
-          # Extract just the tag from full image name if needed
-          if [[ "$IMAGE_TAG" == *":"* ]]; then
-            IMAGE_TAG="${IMAGE_TAG##*:}"
-          fi
+          COMMIT="${{ github.event.client_payload.commit }}"
+          BUILD_URL="${{ github.event.client_payload.buildUrl }}"
           
           if [ ! -z "$SERVICE" ] && [ ! -z "$IMAGE_TAG" ]; then
-            echo "Setting image override for $SERVICE to $IMAGE_TAG"
+            echo "Updating $SERVICE to version $IMAGE_TAG"
+            
+            # Update versions.yaml
+            ./scripts/update-version.sh "$SERVICE" "$IMAGE_TAG" "$COMMIT" "$BUILD_URL"
+            
+            # Set runtime override for immediate deployment
             pulumi config set --path "imageOverrides.${SERVICE}" "${IMAGE_TAG}"
+            
+            # Commit the version update
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add versions.yaml
+            git diff --staged --quiet || git commit -m "chore: update $SERVICE to $IMAGE_TAG [skip ci]"
+            git push || echo "No changes to push"
           fi
           
-      - name: Handle workflow dispatch
-        if: github.event_name == 'workflow_dispatch'
+      # Handle manual deployment
+      - name: Update service version (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.service != ''
         run: |
-          SERVICE="${{ inputs.service }}"
-          IMAGE_TAG="${{ inputs.imageTag }}"
+          SERVICE="${{ github.event.inputs.service }}"
+          VERSION="${{ github.event.inputs.version }}"
           
-          if [ ! -z "$SERVICE" ] && [ ! -z "$IMAGE_TAG" ]; then
-            echo "Setting image override for $SERVICE to $IMAGE_TAG"
-            pulumi config set --path "imageOverrides.${SERVICE}" "${IMAGE_TAG}"
+          if [ ! -z "$VERSION" ]; then
+            echo "Setting override for $SERVICE to $VERSION"
+            pulumi config set --path "imageOverrides.${SERVICE}" "${VERSION}"
           fi
+      
+      # Validate image availability
+      - name: Validate images exist
+        run: |
+          echo "Validating that all required images exist in registry..."
+          node -e "
+          const yaml = require('js-yaml');
+          const fs = require('fs');
+          const { execSync } = require('child_process');
           
+          const versions = yaml.load(fs.readFileSync('versions.yaml', 'utf8'));
+          let hasErrors = false;
+          
+          for (const [service, info] of Object.entries(versions.services)) {
+            const version = info.version;
+            if (version && version !== 'latest') {
+              try {
+                // Check if image exists in registry
+                const output = execSync(\`doctl registry repository list-tags \${service} --no-header | grep \${version}\`, 
+                  { encoding: 'utf8', stdio: 'pipe' });
+                console.log(\`✓ \${service}:\${version} exists\`);
+              } catch (e) {
+                console.error(\`✗ \${service}:\${version} NOT FOUND in registry\`);
+                hasErrors = true;
+              }
+            }
+          }
+          
+          if (hasErrors) {
+            console.error('Some images are missing. Build them first.');
+            process.exit(1);
+          }
+          "
+      
+      # Preview changes
       - name: Preview changes
-        run: pulumi preview
-        
+        run: |
+          pulumi preview --diff
+          
+      # Deploy with automatic rollback
       - name: Deploy infrastructure
         run: |
-          SERVICE="${{ github.event.client_payload.service }}${{ inputs.service }}"
-          if [ ! -z "$SERVICE" ]; then
-            echo "Deploying specific service: $SERVICE"
-            pulumi up --yes --target "**${SERVICE}**"
-          else
-            echo "Deploying all services"
-            pulumi up --yes
-          fi
+          # Save current state for rollback
+          pulumi stack export > before-deploy.json
           
-      - name: Export stack outputs
-        run: pulumi stack output --json > outputs.json
-        
-      - name: Upload outputs
-        uses: actions/upload-artifact@v4
-        with:
-          name: stack-outputs
-          path: outputs.json
+          # Deploy with timeout
+          timeout 600 pulumi up --yes --skip-preview || {
+            echo "Deployment failed or timed out. Rolling back..."
+            pulumi stack import < before-deploy.json
+            pulumi up --yes --skip-preview
+            exit 1
+          }
           
-      - name: Verify deployment
-        if: github.event_name == 'repository_dispatch'
+      # Health check
+      - name: Verify deployment health
         run: |
-          SERVICE="${{ github.event.client_payload.service }}"
-          if [ ! -z "$SERVICE" ]; then
-            echo "Verifying $SERVICE deployment"
-            kubectl get deployment $SERVICE -n integra-apps -o wide || \
-            kubectl get deployment $SERVICE -n integra-blockchain -o wide || \
-            kubectl get deployment $SERVICE -n integra-workflow -o wide
-          fi
+          echo "Waiting for deployments to stabilize..."
+          sleep 30
+          
+          # Check deployment status
+          node -e "
+          const { execSync } = require('child_process');
+          
+          const namespaces = ['integra-apps', 'integra-blockchain', 'integra-workflow'];
+          let unhealthy = [];
+          
+          for (const ns of namespaces) {
+            try {
+              const output = execSync(\`kubectl get deployments -n \${ns} -o json\`, 
+                { encoding: 'utf8' });
+              const deployments = JSON.parse(output);
+              
+              for (const dep of deployments.items) {
+                const name = dep.metadata.name;
+                const desired = dep.spec.replicas;
+                const ready = dep.status.readyReplicas || 0;
+                
+                if (ready < desired) {
+                  unhealthy.push(\`\${ns}/\${name}: \${ready}/\${desired} ready\`);
+                }
+              }
+            } catch (e) {
+              console.error(\`Failed to check \${ns}: \${e.message}\`);
+            }
+          }
+          
+          if (unhealthy.length > 0) {
+            console.error('Unhealthy deployments detected:');
+            unhealthy.forEach(d => console.error(\`  - \${d}\`));
+            process.exit(1);
+          }
+          
+          console.log('All deployments are healthy!');
+          "
+          
+      # Export outputs
+      - name: Export deployment info
+        run: |
+          pulumi stack output --json > deployment-info.json
+          echo "Deployment completed successfully"
+          
+      # Upload artifacts
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: deployment-artifacts
+          path: |
+            deployment-info.json
+            before-deploy.json
+            versions.yaml
