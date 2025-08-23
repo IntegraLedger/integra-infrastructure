@@ -53,6 +53,18 @@ export const serviceRegistry: ServiceConfig[] = [
     exposedPaths: ["/*"]
   },
   {
+    name: "integra-developer-app",
+    namespace: namespaces.apps,
+    replicas: 2,
+    image: "integra-developer-app",
+    port: 3000,
+    healthCheck: "/health",
+    infisicalPath: "/apps/integra-developer-app",
+    resources: sizes.medium,
+    domain: "developer.trustwithintegra.com",
+    exposedPaths: ["/*"]
+  },
+  {
     name: "integra-admin-app",
     namespace: namespaces.apps,
     replicas: 2,
@@ -101,6 +113,18 @@ export const serviceRegistry: ServiceConfig[] = [
     resources: sizes.large,
     domain: "api.trustwithintegra.com",
     exposedPaths: ["/v1/*", "/admin/*", "/oauth2/*"]
+  },
+  {
+    name: "integra-developer-service",
+    namespace: namespaces.apps,
+    replicas: 3,
+    image: "integra-developer-service",
+    port: 3000,
+    healthCheck: "/health",
+    infisicalPath: "/apps/integra-developer-service",
+    resources: sizes.large,
+    domain: "api2.trustwithintegra.com",
+    exposedPaths: ["/v1/*", "/oauth2/*"]
   },
   {
     name: "integra-admin-service",
