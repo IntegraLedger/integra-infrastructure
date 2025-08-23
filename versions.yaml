@@ -55,9 +55,9 @@ services:
     deployed: 2025-08-23T15:52:00Z
   # Blockchain Services
   integra-blockchain-api:
-    version: main-61ce10a-20250823162229
-    commit: unknown
-    deployed: "2025-08-23T16:24:22Z"
+    version: main-242b71ee-20250823163529
+    commit: 242b71ee965802faa14ae2ef2e215276ae9594e8
+    deployed: 2025-08-23T16:36:53Z
   integra-gateway-service:
     version: latest
     commit: unknown
