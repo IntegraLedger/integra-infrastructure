@@ -72,9 +72,12 @@ export class VersionManager {
       return serviceVersion.version;
     }
     
-    // Fallback with warning
-    pulumi.log.warn(`No version found for ${serviceName}, using 'latest'`);
-    return "latest";
+    // NO FALLBACK - FAIL FAST
+    throw new Error(
+      `No valid version found for service '${serviceName}'. ` +
+      `Version must be specified in versions.yaml or via runtime override. ` +
+      `'latest' tag is not allowed.`
+    );
   }
   
   /**
