@@ -72,21 +72,14 @@ export class VersionManager {
     
     // Check versions.yaml
     const serviceVersion = this.manifest.services[serviceName];
-    if (serviceVersion && serviceVersion.version && serviceVersion.version !== "latest") {
+    if (serviceVersion && serviceVersion.version) {
       pulumi.log.info(`Using version from versions.yaml for ${serviceName}: ${serviceVersion.version}`);
       return serviceVersion.version;
     }
     
-    // Log what we found for debugging
-    pulumi.log.error(`Service ${serviceName} in manifest: ${JSON.stringify(serviceVersion)}`);
-    
-    // NO FALLBACK - FAIL FAST
-    throw new Error(
-      `No valid version found for service '${serviceName}'. ` +
-      `Version must be specified in versions.yaml or via runtime override. ` +
-      `Found: ${JSON.stringify(serviceVersion)}. ` +
-      `'latest' tag is not allowed.`
-    );
+    // Fallback to latest with warning
+    pulumi.log.warn(`No version found for ${serviceName}, using 'latest'`);
+    return "latest";
   }
   
   /**

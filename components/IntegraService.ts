@@ -99,6 +99,7 @@ export class IntegraService extends pulumi.ComponentResource {
             "linkerd.io/inject": "enabled",
             // Removed deployment.kubernetes.io/revision - this is managed by Kubernetes controller
             "pulumi.com/autoUpdate": "true",
+            "pulumi.com/patchForce": "true", // Force ownership on field conflicts
             "integra.io/deployed-at": new Date().toISOString(),
             "integra.io/deployed-by": "pulumi-automation",
             "integra.io/commit-sha": commitSha,
@@ -186,6 +187,7 @@ export class IntegraService extends pulumi.ComponentResource {
           labels: enhancedLabels,
           annotations: {
             "integra.io/service-version": imageTag,
+            "pulumi.com/patchForce": "true", // Force ownership on field conflicts
           },
         },
         spec: {
