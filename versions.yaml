@@ -3,15 +3,15 @@
 # Updated automatically by CI/CD pipeline - DO NOT EDIT MANUALLY
 
 metadata:
-  updated: "2025-08-23T17:43:49Z"
+  updated: "2025-08-23T17:44:55Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
   # Frontend Applications
   integra-trust-app:
-    version: latest # TODO: Replace with actual version
+    version: main-fbe1a802-20250823174249 # TODO: Replace with actual version
     commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    deployed: "2025-08-23T17:44:55Z"
   integra-admin-app:
     version: latest
     commit: unknown
