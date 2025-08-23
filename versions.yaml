@@ -3,7 +3,7 @@
 # Updated automatically by CI/CD pipeline - DO NOT EDIT MANUALLY
 
 metadata:
-  updated: "2025-08-23T18:40:23Z"
+  updated: "2025-08-23T18:42:02Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
@@ -25,9 +25,9 @@ services:
     commit: unknown
     deployed: "2025-08-23T18:40:23Z"
   integra-docs-app:
-    version: latest
+    version: main-12bedad-20250823183955
     commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    deployed: "2025-08-23T18:42:02Z"
   # Backend Services
   integra-bridge-service:
     version: main-12b0bda-20250823174232
