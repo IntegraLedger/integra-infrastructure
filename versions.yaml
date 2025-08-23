@@ -3,7 +3,7 @@
 # Updated automatically by CI/CD pipeline - DO NOT EDIT MANUALLY
 
 metadata:
-  updated: "2025-08-23T17:56:03Z"
+  updated: "2025-08-23T18:36:13Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
@@ -63,9 +63,9 @@ services:
     commit: unknown
     deployed: 2025-08-23T15:52:00Z
   integra-rpc-service:
-    version: latest
+    version: main-368bea9e-20250823183505
     commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    deployed: "2025-08-23T18:36:13Z"
   integra-indexer-service:
     version: latest
     commit: unknown
