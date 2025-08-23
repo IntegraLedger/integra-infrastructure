@@ -44,6 +44,15 @@ jobs:
           npm ci
           npm install -g js-yaml
           
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          
+      - name: Setup Kubernetes
+        run: |
+          doctl kubernetes cluster kubeconfig save integra-cluster
+          
       - name: Setup Pulumi
         uses: pulumi/actions@v4
         
