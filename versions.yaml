@@ -3,7 +3,7 @@
 # Updated automatically by CI/CD pipeline - DO NOT EDIT MANUALLY
 
 metadata:
-  updated: "2025-08-24T12:36:52Z"
+  updated: "2025-08-24T12:43:28Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
@@ -46,9 +46,9 @@ services:
     commit: unknown
     deployed: 2025-08-23T15:52:00Z
   integra-ai-gateway-service:
-    version: main-e7058c5-20250824123545
+    version: main-8157a4a-20250824124134
     commit: unknown
-    deployed: "2025-08-24T12:36:52Z"
+    deployed: "2025-08-24T12:43:28Z"
   integra-dev-assistant-service:
     version: latest
     commit: unknown
