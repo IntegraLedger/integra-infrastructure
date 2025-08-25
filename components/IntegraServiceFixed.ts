@@ -30,7 +30,7 @@ export class IntegraService extends pulumi.ComponentResource {
     args: IntegraServiceArgs,
     opts?: pulumi.ComponentResourceOptions
   ) {
-    super("integra:service:IntegraService", name, {}, opts);
+    super("integra:service", name, {}, opts);
 
     const labels = {
       app: args.name,
@@ -41,14 +41,14 @@ export class IntegraService extends pulumi.ComponentResource {
     };
 
     // Create InfisicalSecret for automatic secret injection
-    // Using standard service token authentication as per Infisical documentation
+    // Using universal auth with PROJECT ID (not slug)
     this.infisicalSecret = new k8s.apiextensions.CustomResource(
-      `${name}-infisical`,
+      `${name}-env`,
       {
         apiVersion: "secrets.infisical.com/v1alpha1",
         kind: "InfisicalSecret",
         metadata: {
-          name: `${args.name}-secrets`,
+          name: `${args.name}-env`,
           namespace: args.namespace,
           labels,
         },
@@ -63,6 +63,7 @@ export class IntegraService extends pulumi.ComponentResource {
               },
               secretsScope: {
                 envSlug: args.environment,
+                // Use the actual project ID from Infisical
                 projectId: "acd53ca1-6365-4874-874f-15d62453c34f",
                 secretsPath: args.infisicalPath,
               }
@@ -98,43 +99,52 @@ export class IntegraService extends pulumi.ComponentResource {
           labels: enhancedLabels,
           annotations: {
             "linkerd.io/inject": "enabled",
-            // Removed deployment.kubernetes.io/revision - this is managed by Kubernetes controller
-            "pulumi.com/autoUpdate": "true",
-            "pulumi.com/patchForce": "true", // Force ownership on field conflicts
-            "integra.io/deployed-at": new Date().toISOString(),
-            "integra.io/deployed-by": "pulumi-automation",
-            "integra.io/commit-sha": commitSha,
-            "integra.io/service-name": args.name,
-            "integra.io/image-tag": imageTag, // Track version differently
+            "pulumi.com/skipAwait": "true",
           },
         },
         spec: {
           replicas: args.replicas,
-          selector: { matchLabels: labels },
+          selector: {
+            matchLabels: {
+              app: args.name,
+            },
+          },
           template: {
-            metadata: { 
-              labels: enhancedLabels,
+            metadata: {
+              labels: {
+                app: args.name,
+                version: imageTag,
+              },
               annotations: {
                 "linkerd.io/inject": "enabled",
                 "prometheus.io/scrape": "true",
-                "prometheus.io/port": args.port.toString(),
+                "prometheus.io/port": String(args.port),
                 "prometheus.io/path": "/metrics",
-                "integra.io/version": imageTag,
-                "integra.io/commit": commitSha,
+                // Force redeployment when image changes
+                "deployment.kubernetes.io/revision": imageTag,
+                // Track commit SHA for traceability
+                "app.kubernetes.io/commit": commitSha,
               },
             },
             spec: {
+              serviceAccountName: "default",
+              imagePullSecrets: [{ name: "integra-registry" }],
               containers: [
                 {
-                  name: args.name,
+                  name: "app",
                   image: args.image,
                   imagePullPolicy: "Always",
-                  ports: [{ containerPort: args.port, name: "http" }],
+                  ports: [
+                    {
+                      containerPort: args.port,
+                      name: "http",
+                      protocol: "TCP",
+                    },
+                  ],
                   envFrom: [
                     {
                       secretRef: {
                         name: `${args.name}-env`,
-                        optional: true,
                       },
                     },
                   ],
@@ -144,7 +154,7 @@ export class IntegraService extends pulumi.ComponentResource {
                     ? {
                         httpGet: {
                           path: args.healthCheck,
-                          port: "http",
+                          port: args.port,
                         },
                         initialDelaySeconds: 30,
                         periodSeconds: 10,
@@ -156,7 +166,7 @@ export class IntegraService extends pulumi.ComponentResource {
                     ? {
                         httpGet: {
                           path: args.healthCheck,
-                          port: "http",
+                          port: args.port,
                         },
                         initialDelaySeconds: 10,
                         periodSeconds: 5,
@@ -166,16 +176,20 @@ export class IntegraService extends pulumi.ComponentResource {
                     : undefined,
                 },
               ],
-              imagePullSecrets: [
-                {
-                  name: "integra-registry",
-                },
-              ],
+              restartPolicy: "Always",
+              terminationGracePeriodSeconds: 30,
+            },
+          },
+          strategy: {
+            type: "RollingUpdate",
+            rollingUpdate: {
+              maxSurge: 1,
+              maxUnavailable: 0,
             },
           },
         },
       },
-      { parent: this, dependsOn: [this.infisicalSecret] }
+      { parent: this, deleteBeforeReplace: true }
     );
 
     // Create Service
@@ -185,15 +199,16 @@ export class IntegraService extends pulumi.ComponentResource {
         metadata: {
           name: args.name,
           namespace: args.namespace,
-          labels: enhancedLabels,
+          labels,
           annotations: {
-            "integra.io/service-version": imageTag,
-            "pulumi.com/patchForce": "true", // Force ownership on field conflicts
+            "prometheus.io/scrape": "true",
+            "prometheus.io/port": String(args.port),
           },
         },
         spec: {
-          type: "ClusterIP",
-          selector: labels,
+          selector: {
+            app: args.name,
+          },
           ports: [
             {
               port: args.port,
@@ -202,12 +217,13 @@ export class IntegraService extends pulumi.ComponentResource {
               name: "http",
             },
           ],
+          type: "ClusterIP",
         },
       },
       { parent: this }
     );
 
-    // Create APISIX Route if domain is specified
+    // Create APISIX route if domain is specified
     if (args.domain && args.exposedPaths) {
       this.route = new k8s.apiextensions.CustomResource(
         `${name}-route`,
@@ -217,48 +233,27 @@ export class IntegraService extends pulumi.ComponentResource {
           metadata: {
             name: args.name,
             namespace: args.namespace,
+            labels,
           },
           spec: {
-            http: [
-              {
-                name: args.name,
-                match: {
-                  hosts: [args.domain],
-                  paths: args.exposedPaths,
-                },
-                backends: [
-                  {
-                    serviceName: args.name,
-                    servicePort: args.port,
-                  },
-                ],
-                plugins: [
-                  {
-                    name: "cors",
-                    enable: true,
-                    config: {
-                      allow_origins: "http://localhost:3000,https://*.trustwithintegra.com",
-                      allow_methods: "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
-                      allow_headers: "*",
-                      expose_headers: "*",
-                      allow_credentials: true,
-                      max_age: 3600,
-                    },
-                  },
-                ],
+            http: args.exposedPaths.map((path, index) => ({
+              name: `${args.name}-rule-${index}`,
+              match: {
+                hosts: [args.domain],
+                paths: [path],
               },
-            ],
+              upstreams: [
+                {
+                  type: "service",
+                  serviceName: args.name,
+                  servicePort: args.port,
+                },
+              ],
+            })),
           },
         },
-        { parent: this, dependsOn: [this.service] }
+        { parent: this }
       );
     }
-
-    this.registerOutputs({
-      deployment: this.deployment,
-      service: this.service,
-      infisicalSecret: this.infisicalSecret,
-      route: this.route,
-    });
   }
 }

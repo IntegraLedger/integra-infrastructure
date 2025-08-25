@@ -15,7 +15,8 @@ const versionManager = new VersionManager(config);
 
 // Get required secrets from config
 const dockerRegistryAuth = config.requireSecret("dockerRegistryAuth");
-const infisicalServiceToken = config.requireSecret("infisicalServiceToken");
+const infisicalClientId = config.requireSecret("infisicalClientId");
+const infisicalClientSecret = config.requireSecret("infisicalClientSecret");
 
 // Create namespaces
 const namespacesMap = new Map<string, k8s.core.v1.Namespace>();
@@ -48,17 +49,18 @@ for (const [name, namespace] of namespacesMap) {
   registrySecrets.set(name, registrySecret);
 }
 
-// Create Infisical service token secret in each namespace
+// Create Infisical universal auth secret in each namespace
 const infisicalSecrets = new Map<string, k8s.core.v1.Secret>();
 for (const [name, namespace] of namespacesMap) {
-  const infisicalSecret = new k8s.core.v1.Secret(`${name}-infisical-token`, {
+  const infisicalSecret = new k8s.core.v1.Secret(`${name}-infisical-auth`, {
     metadata: {
-      name: "infisical-service-token",
+      name: "infisical-auth",
       namespace: name,
     },
     type: "Opaque",
     stringData: {
-      serviceToken: infisicalServiceToken,
+      clientId: infisicalClientId,
+      clientSecret: infisicalClientSecret,
     },
   }, { parent: namespace, dependsOn: [namespace] });
   infisicalSecrets.set(name, infisicalSecret);
