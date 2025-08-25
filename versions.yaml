@@ -14,7 +14,7 @@
 # AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-25T06:24:52Z"
+  updated: "2025-08-25T06:25:28Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
@@ -37,9 +37,10 @@ services:
     commit: 00e32595
     deployed: "2025-08-24T12:41:35Z"
   integra-docs-app:
-    version: main-f690ab3d-20250824072129
-    commit: f690ab3d
-    deployed: "2025-08-24T07:21:29Z"
+    version: main-60c4be2f-20250825062158
+    commit: 60c4be2f72f4d9fa08049a268512ca2b56462038
+    deployed: "2025-08-25T06:25:28Z"
+    buildUrl: https://github.com/IntegraLedger/integra-docs-app/actions/runs/17200886276
   # Backend Services
   integra-bridge-service:
     version: main-cb422027-20250824124139
