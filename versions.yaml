@@ -14,7 +14,7 @@
 # AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-25T14:49:38Z"
+  updated: "2025-08-25T14:55:10Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
@@ -82,9 +82,10 @@ services:
     deployed: "2025-08-25T00:16:32Z"
   # Blockchain Services
   integra-blockchain-api:
-    version: main-cf6c9a2c-20250824124144
-    commit: cf6c9a2c
-    deployed: "2025-08-24T12:41:44Z"
+    version: main-af85477e-20250825145428
+    commit: af85477ef9abfb6e475873d8ae040471a0fec046
+    deployed: "2025-08-25T14:55:10Z"
+    buildUrl: https://github.com/IntegraLedger/integra-blockchain-api/actions/runs/17212447834
   integra-gateway-service:
     version: main-fbae24a1-20250824124047
     commit: fbae24a1
