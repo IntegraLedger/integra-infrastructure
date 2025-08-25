@@ -1,114 +1,173 @@
 # Service Version Manifest
 # This file is the single source of truth for deployed service versions
-# Updated automatically by CI/CD pipeline - DO NOT EDIT MANUALLY
+# 
+# CRITICAL ENFORCEMENT RULES:
+# 1. FORBIDDEN: Using "latest" tag - Pulumi will reject deployment
+# 2. FORBIDDEN: Manual kubectl set image commands
+# 3. REQUIRED: All versions must be explicit tags from CI/CD pipeline
+# 4. REQUIRED: Format must be "main-{sha}-{timestamp}" or "none" for unbuilt services
+#
+# This file is updated ONLY by:
+# - GitHub Actions after successful build (via repository_dispatch)
+# - Emergency manual update with explicit approval and versioned tag
+#
+# AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-24T12:43:28Z"
-  updatedBy: ci-pipeline
+  updated: "2025-08-25T01:15:00Z"
+  updatedBy: infrastructure-recovery-forbidden-tags
   environment: dev
 services:
   # Frontend Applications
   integra-trust-app:
-    version: main-2d457568-20250823184152 # TODO: Replace with actual version
-    commit: unknown
-    deployed: "2025-08-23T18:44:27Z"
+    version: main-5f2acd97-20250824124138
+    commit: 5f2acd97
+    deployed: "2025-08-24T12:41:38Z"
   integra-admin-app:
-    version: main-e0c7c85-20250823174245
-    commit: unknown
-    deployed: "2025-08-23T17:45:27Z"
+    version: main-c86e7f60-20250824124134
+    commit: c86e7f60
+    deployed: "2025-08-24T12:41:34Z"
   integra-developer-app:
-    version: main-03fedf96-20250823184054
-    commit: unknown
-    deployed: "2025-08-23T18:43:00Z"
+    version: main-9c5b0578-20250824124137
+    commit: 9c5b0578
+    deployed: "2025-08-24T12:41:37Z"
   integra-explorer-app:
-    version: main-06fe092-20250823183752
-    commit: unknown
-    deployed: "2025-08-23T18:40:23Z"
+    version: main-00e32595-20250824124135
+    commit: 00e32595
+    deployed: "2025-08-24T12:41:35Z"
   integra-docs-app:
-    version: main-12bedad-20250823183955
-    commit: unknown
-    deployed: "2025-08-23T18:42:02Z"
+    version: main-f690ab3d-20250824072129
+    commit: f690ab3d
+    deployed: "2025-08-24T07:21:29Z"
   # Backend Services
   integra-bridge-service:
-    version: main-12b0bda-20250823174232
-    commit: unknown
-    deployed: "2025-08-23T17:43:49Z"
+    version: main-cb422027-20250824124139
+    commit: cb422027
+    deployed: "2025-08-24T12:41:39Z"
+  integra-bridge:
+    version: "none"  # Service not built yet
+    commit: none
+    deployed: null
+  integra-admin-backend:
+    version: "none"  # Service not built yet
+    commit: none
+    deployed: null
+  integra-model-backend-service:
+    version: "none"  # Service not built yet
+    commit: none
+    deployed: null
   integra-admin-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
   integra-developer-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
   integra-ai-help-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-0a24353b-20250825002801
+    commit: 0a24353b
+    deployed: "2025-08-25T00:28:01Z"
   integra-ai-gateway-service:
     version: main-8157a4a-20250824124134
-    commit: unknown
+    commit: 8157a4a
     deployed: "2025-08-24T12:43:28Z"
   integra-dev-assistant-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
   # Blockchain Services
   integra-blockchain-api:
-    version: main-242b71ee-20250823163529
-    commit: 242b71ee965802faa14ae2ef2e215276ae9594e8
-    deployed: 2025-08-23T16:36:53Z
+    version: main-cf6c9a2c-20250824124144
+    commit: cf6c9a2c
+    deployed: "2025-08-24T12:41:44Z"
   integra-gateway-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-fbae24a1-20250824124047
+    commit: fbae24a1
+    deployed: "2025-08-24T12:40:47Z"
   integra-rpc-service:
     version: main-368bea9e-20250823183505
-    commit: unknown
+    commit: 368bea9e
     deployed: "2025-08-23T18:36:13Z"
   integra-indexer-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
+  integra-universal-indexer:
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
   integra-proof-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-876a0f43-20250825005036
+    commit: 876a0f43
+    deployed: "2025-08-25T00:50:36Z"
   integra-hogan-api:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
   # Blockchain Executors
   integra-polygon-executor:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-597e5dbb-20250824124144
+    commit: 597e5dbb
+    deployed: "2025-08-24T12:41:44Z"
   integra-arbitrum-executor:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-a8d059f8-20250824222306
+    commit: a8d059f8
+    deployed: "2025-08-24T22:23:06Z"
   integra-avalanche-executor:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-f5dd86e9-20250824222600
+    commit: f5dd86e9
+    deployed: "2025-08-24T22:26:00Z"
   integra-base-executor:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-07df3a8a-20250824222700
+    commit: 07df3a8a
+    deployed: "2025-08-24T22:27:00Z"
+  integra-ethereum-executor:
+    version: main-1329a6b2-20250824222610
+    commit: 1329a6b2
+    deployed: "2025-08-24T22:26:10Z"
+  integra-optimism-executor:
+    version: main-8c72f568-20250824222622
+    commit: 8c72f568
+    deployed: "2025-08-24T22:26:22Z"
+  integra-bnb-executor:
+    version: main-4cc65a3a-20250824224507
+    commit: 4cc65a3a
+    deployed: "2025-08-24T22:45:07Z"
+  integra-celo-executor:
+    version: main-59742818-20250824224521
+    commit: 59742818
+    deployed: "2025-08-24T22:45:21Z"
+  integra-sonic-executor:
+    version: main-dc89c57d-20250824223130
+    commit: dc89c57d
+    deployed: "2025-08-24T22:31:30Z"
+  integra-cronos-executor:
+    version: main-193c5cf2-20250824224521
+    commit: 193c5cf2
+    deployed: "2025-08-24T22:45:21Z"
+  integra-sei-executor:
+    version: main-137f538c-20250824224530
+    commit: 137f538c
+    deployed: "2025-08-24T22:45:30Z"
+  integra-linea-executor:
+    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    commit: none
+    deployed: null
   # Workflow Services
   integra-temporal-orchestrator-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-1d487ccf-20250825005100
+    commit: 1d487ccf
+    deployed: "2025-08-25T00:51:00Z"
   integra-temporal-messaging-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: main-faf2e242-20250825005155
+    commit: faf2e242
+    deployed: "2025-08-25T00:51:55Z"
   integra-messaging-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Incomplete app - skipped
+    commit: none
+    deployed: null
   integra-workflow-service:
-    version: latest
-    commit: unknown
-    deployed: 2025-08-23T15:52:00Z
+    version: "none"  # Incomplete app - skipped
+    commit: none
+    deployed: null
