@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integra-trust-app
+  namespace: integra-apps
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: integra-trust-app
+  template:
+    metadata:
+      labels:
+        app: integra-trust-app
+    spec:
+      imagePullSecrets:
+      - name: integra-registry
+      containers:
+      - name: app
+        image: registry.digitalocean.com/integra-container-registry/integra-trust-app:main-29da6fd7-20250823192906
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: integra-trust-app
+  namespace: integra-apps
+spec:
+  selector:
+    app: integra-trust-app
+  ports:
+  - port: 3000
+    targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integra-bridge-service
+  namespace: integra-apps
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: integra-bridge-service
+  template:
+    metadata:
+      labels:
+        app: integra-bridge-service
+    spec:
+      imagePullSecrets:
+      - name: integra-registry
+      containers:
+      - name: app
+        image: registry.digitalocean.com/integra-container-registry/integra-bridge-service:main-acad8ca2-20250823192916
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 2Gi

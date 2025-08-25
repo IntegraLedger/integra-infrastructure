@@ -14,8 +14,8 @@
 # AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-25T01:15:00Z"
-  updatedBy: infrastructure-recovery-forbidden-tags
+  updated: "2025-08-25T01:45:00Z"
+  updatedBy: infrastructure-recovery-complete
   environment: dev
 services:
   # Frontend Applications
@@ -57,13 +57,13 @@ services:
     commit: none
     deployed: null
   integra-admin-service:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
-    commit: none
-    deployed: null
+    version: main-ff328a8c-20250825001610
+    commit: ff328a8c
+    deployed: "2025-08-25T00:16:10Z"
   integra-developer-service:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
-    commit: none
-    deployed: null
+    version: main-f8957205-20250825001612
+    commit: f8957205
+    deployed: "2025-08-25T00:16:12Z"
   integra-ai-help-service:
     version: main-0a24353b-20250825002801
     commit: 0a24353b
@@ -73,9 +73,9 @@ services:
     commit: 8157a4a
     deployed: "2025-08-24T12:43:28Z"
   integra-dev-assistant-service:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
-    commit: none
-    deployed: null
+    version: main-3a3f2c19-20250825001632
+    commit: 3a3f2c19
+    deployed: "2025-08-25T00:16:32Z"
   # Blockchain Services
   integra-blockchain-api:
     version: main-cf6c9a2c-20250824124144
@@ -102,9 +102,9 @@ services:
     commit: 876a0f43
     deployed: "2025-08-25T00:50:36Z"
   integra-hogan-api:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
-    commit: none
-    deployed: null
+    version: main-ad60e3a2-20250824124143
+    commit: ad60e3a2
+    deployed: "2025-08-24T12:41:43Z"
   # Blockchain Executors
   integra-polygon-executor:
     version: main-597e5dbb-20250824124144

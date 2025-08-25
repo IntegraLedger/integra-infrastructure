@@ -1,0 +1,75 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write  # Required for OIDC auth with Infisical
+  contents: read   # For checking out code
+
+env:
+  REGISTRY: registry.digitalocean.com/integra-container-registry
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Login to DigitalOcean Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          password: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          
+      - name: Generate version
+        id: version
+        run: |
+          VERSION="main-${GITHUB_SHA:0:8}-$(date +%Y%m%d%H%M%S)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+          
+      - name: Inject Infisical secrets (Frontend only)
+        if: contains(github.repository, '-app')
+        uses: Infisical/secrets-action@v1.0.12
+        with:
+          method: oidc
+          identity-id: ${{ secrets.INFISICAL_IDENTITY_ID }}  # Store this in GitHub Secrets
+          project-slug: integra-platform-7w8  # Your Infisical project slug
+          env-slug: dev
+          secret-path: /apps/${{ github.event.repository.name }}
+          export-type: env
+          include-imports: true
+          
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.event.repository.name }}:${{ steps.version.outputs.version }}
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.NPM_GITHUB_TOKEN }}
+            VERSION=${{ steps.version.outputs.version }}
+            VITE_PRIVY_APP_ID=${{ env.VITE_PRIVY_APP_ID }}
+            VITE_ABLY_API_KEY=${{ env.VITE_ABLY_API_KEY }}
+            VITE_AI_GATEWAY_URL=${{ env.VITE_AI_GATEWAY_URL }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ github.event.repository.name }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ github.event.repository.name }}:buildcache,mode=max
+          platforms: linux/amd64
+          
+      - name: Trigger deployment
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PULUMI_TRIGGER_TOKEN }}
+          repository: IntegraLedger/integra-infrastructure
+          event-type: deploy
+          client-payload: |
+            {
+              "service": "${{ github.event.repository.name }}",
+              "version": "${{ steps.version.outputs.version }}"
+            }

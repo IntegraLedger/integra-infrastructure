@@ -2,10 +2,10 @@ config:
   kubernetes:enableDryRun: "false"
   integra-infrastructure:environment: dev
   integra-infrastructure:digitalOceanToken:
-    secure: AAABACq4qHgW9DfK/yk5O3Cu2yUOj4zqCOu7AU/QBTDl1nKGsfXXrfWj3h4FKfbiM/pHquuiVwk1Lgt+kK79UztzxFvzB1hcTGlsJoYObJqnt0IMsmoxed/ACoDr7nGfyOEISNtFJA== # Will be set via pulumi config set --secret
+    secure: AAABABz2RjGJkCjtSg5VErgRiwgxEyjLTulY28kokCU= # Will be set via pulumi config set --secret
   integra-infrastructure:infisicalProjectId: acd53ca1-6365-4874-874f-15d62453c34f
   integra-infrastructure:containerRegistry: registry.digitalocean.com/integra-container-registry
   integra-infrastructure:dockerRegistryAuth:
-    secure: AAABAGB2XKglBnnI3spbOSiMbbWGBEcB/pHrcGGq4COiluvTKXjltbfyoxObFNioHDb0dqdNCn5FaxYcAzFkXm0gBEm0Viom05DRiF55bb6U0d6aL8uNfR315hXMCjEqovPum5GN34nZRxy0Nj3W4HvovUSao6emIlmigwPzpEX+gc5lCG831z+leQsBosem86xs8XzZEtudyWxb/tCQEV+1OI0JxUjgn7GLZ5tNJ7+buAjqcaDCXJ85oZUYDt2m5B8lchNufQr7lk9pXBB7i8UTDzNCtlU=
+    secure: AAABAOxjKE9pyDTNIUBTSncMPrxOPQWIHhjMfr6a3ftRBdvH40Da5YV+WbhAv3BXvNPU0XEc+EE+8BrnyDytR3FWOeQa4btnHocALq/Cpz7mPbbwDUfdMDzkAH1Kf+GmsgE8HicrLBEWdxrIVdAIgMi2SbUYIe7UZErWZ+vSYfCIQAHFRQB8rzX2zv2n0mFalE30al2lf+wdvw3od+Vch4I3yFCUjo2NCjZwem/nC5bX0MOX0/dgfUQ4gYVON9gBZ92lfhPfLs9znFCddRkhpGanigJ4Y60=
   integra-infrastructure:infisicalServiceToken:
-    secure: AAABAKG0eL/fimsIiirF4NORB17agDjfUGaMcvlKvtrlwmrPTswvzi8OwUyLPpQXlk4LFmvfHZWFFusDEB3XMyK6K9JAa6FOugfUPEfVr6tammhioSp3wqdWUjvUMpEOWscCKqjwv2083ZNTe+tTV//wIyueRKTNKmqSSDRGGElMK4tp/l1dT4o=
+    secure: AAABAL6fztodcbDQ6HCv7mGKu39JWdyCmLPUdBWVLj0PuDgHcZvL4PI55WsWyOlJGfeY+phISnmQNMxzjmvEdr8nAIRGe4RhGOsIuIr2215nZ7iaEfUdTFUqgV9l3ol9JQnvE9+guBbUweomCw533pvuLIG7mBPq/s1007L1xBupMHtciHWAVQA+OeVv

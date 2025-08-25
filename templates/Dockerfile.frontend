@@ -1,0 +1,65 @@
+# Standard Frontend App Dockerfile (Vite/React)
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Accept GitHub token and version
+ARG GITHUB_TOKEN
+ARG VERSION=unknown
+
+# Accept VITE build arguments
+ARG VITE_PRIVY_APP_ID
+ARG VITE_ABLY_API_KEY
+ARG VITE_AI_GATEWAY_URL
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Setup npm auth and install dependencies
+COPY .npmrc ./
+RUN sed -i "s/\${GITHUB_TOKEN}/${GITHUB_TOKEN}/g" .npmrc && \
+    pnpm install --frozen-lockfile
+
+# Copy application source
+COPY src ./src
+COPY public ./public
+COPY index.html ./
+COPY vite.config.ts ./
+COPY tsconfig*.json ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+
+# Set environment variables for build
+ENV VITE_PRIVY_APP_ID=$VITE_PRIVY_APP_ID
+ENV VITE_ABLY_API_KEY=$VITE_ABLY_API_KEY
+ENV VITE_AI_GATEWAY_URL=$VITE_AI_GATEWAY_URL
+ENV VITE_VERSION=$VERSION
+
+# Build the application
+RUN pnpm run build
+
+# Verify build output
+RUN test -d dist && test -f dist/index.html || exit 1
+
+# Runtime stage - lightweight static server
+FROM node:20-alpine
+WORKDIR /app
+
+# Install serve for static hosting
+RUN npm install -g serve
+
+# Copy built application
+COPY --from=builder /app/dist ./dist
+
+# Use non-root user
+USER node
+
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+
+CMD ["serve", "-s", "dist", "-l", "3000"]

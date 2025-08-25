@@ -60,19 +60,23 @@ jobs:
         run: pulumi login
         
       - name: Select stack
-        run: pulumi stack select dev
+        run: pulumi stack select integraledger/integra-infrastructure/dev
         
       # Handle service updates from CI/CD
       - name: Update service version (repository_dispatch)
         if: github.event_name == 'repository_dispatch'
         run: |
           SERVICE="${{ github.event.client_payload.service }}"
+          # Accept both imageTag (new standard) and version (legacy) for compatibility
           IMAGE_TAG="${{ github.event.client_payload.imageTag }}"
+          if [ -z "$IMAGE_TAG" ]; then
+            IMAGE_TAG="${{ github.event.client_payload.version }}"
+          fi
           COMMIT="${{ github.event.client_payload.commit }}"
           BUILD_URL="${{ github.event.client_payload.buildUrl }}"
           
           if [ ! -z "$SERVICE" ] && [ ! -z "$IMAGE_TAG" ]; then
-            echo "Updating $SERVICE to version $IMAGE_TAG"
+            echo "Updating $SERVICE to imageTag $IMAGE_TAG"
             
             # Update versions.yaml
             ./scripts/update-version.sh "$SERVICE" "$IMAGE_TAG" "$COMMIT" "$BUILD_URL"
