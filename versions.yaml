@@ -14,7 +14,7 @@
 # AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-25T15:56:15Z"
+  updated: "2025-08-25T19:01:47Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
@@ -107,10 +107,10 @@ services:
     commit: 876a0f43
     deployed: "2025-08-25T00:50:36Z"
   integra-hogan-api:
-    version: main-0ec62587-20250825145518
-    commit: 0ec62587a8f8d8d0693f62a805c782b1b8c37489
-    deployed: "2025-08-25T14:56:01Z"
-    buildUrl: https://github.com/IntegraLedger/integra-hogan-api/actions/runs/17212468840
+    version: main-db4fc2a4-20250825190021
+    commit: db4fc2a4488d39828f9c2bf9a5c8c5a13e9b5898
+    deployed: "2025-08-25T19:01:47Z"
+    buildUrl: https://github.com/IntegraLedger/integra-hogan-api/actions/runs/17218049051
   # Blockchain Executors
   integra-polygon-executor:
     version: main-597e5dbb-20250824124144
