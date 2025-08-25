@@ -14,15 +14,16 @@
 # AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-25T06:25:28Z"
+  updated: "2025-08-25T06:26:17Z"
   updatedBy: ci-pipeline
   environment: dev
 services:
   # Frontend Applications
   integra-trust-app:
-    version: main-5f2acd97-20250824124138
-    commit: 5f2acd97
-    deployed: "2025-08-24T12:41:38Z"
+    version: main-a8ded402-20250825062136
+    commit: a8ded40242a40f2f3daaf820d2265bf7fa90ddc9
+    deployed: "2025-08-25T06:26:17Z"
+    buildUrl: https://github.com/IntegraLedger/integra-trust-app/actions/runs/17200881331
   integra-admin-app:
     version: main-c86e7f60-20250824124134
     commit: c86e7f60
