@@ -14,8 +14,8 @@
 # AI SESSIONS: DO NOT MODIFY THIS FILE. Any changes will break deployments.
 
 metadata:
-  updated: "2025-08-25T01:45:00Z"
-  updatedBy: infrastructure-recovery-complete
+  updated: "2025-08-25T06:24:52Z"
+  updatedBy: ci-pipeline
   environment: dev
 services:
   # Frontend Applications
@@ -28,9 +28,10 @@ services:
     commit: c86e7f60
     deployed: "2025-08-24T12:41:34Z"
   integra-developer-app:
-    version: main-9c5b0578-20250824124137
-    commit: 9c5b0578
-    deployed: "2025-08-24T12:41:37Z"
+    version: main-35b2361b-20250825062155
+    commit: 35b2361bb4764c887acf5a0708ac9fd0461e797a
+    deployed: "2025-08-25T06:24:52Z"
+    buildUrl: https://github.com/IntegraLedger/integra-developer-app/actions/runs/17200884995
   integra-explorer-app:
     version: main-00e32595-20250824124135
     commit: 00e32595
@@ -45,15 +46,15 @@ services:
     commit: cb422027
     deployed: "2025-08-24T12:41:39Z"
   integra-bridge:
-    version: "none"  # Service not built yet
+    version: "none" # Service not built yet
     commit: none
     deployed: null
   integra-admin-backend:
-    version: "none"  # Service not built yet
+    version: "none" # Service not built yet
     commit: none
     deployed: null
   integra-model-backend-service:
-    version: "none"  # Service not built yet
+    version: "none" # Service not built yet
     commit: none
     deployed: null
   integra-admin-service:
@@ -90,11 +91,11 @@ services:
     commit: 368bea9e
     deployed: "2025-08-23T18:36:13Z"
   integra-indexer-service:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    version: "none" # Service not built yet - WAITING FOR CI/CD
     commit: none
     deployed: null
   integra-universal-indexer:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    version: "none" # Service not built yet - WAITING FOR CI/CD
     commit: none
     deployed: null
   integra-proof-service:
@@ -151,7 +152,7 @@ services:
     commit: 137f538c
     deployed: "2025-08-24T22:45:30Z"
   integra-linea-executor:
-    version: "none"  # Service not built yet - WAITING FOR CI/CD
+    version: "none" # Service not built yet - WAITING FOR CI/CD
     commit: none
     deployed: null
   # Workflow Services
@@ -164,10 +165,10 @@ services:
     commit: faf2e242
     deployed: "2025-08-25T00:51:55Z"
   integra-messaging-service:
-    version: "none"  # Incomplete app - skipped
+    version: "none" # Incomplete app - skipped
     commit: none
     deployed: null
   integra-workflow-service:
-    version: "none"  # Incomplete app - skipped
+    version: "none" # Incomplete app - skipped
     commit: none
     deployed: null
